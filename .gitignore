@@ -1,0 +1,14 @@
+﻿node_modules/
+client/node_modules/
+server/node_modules/
+.env
+.env.local
+dist/
+build/
+.DS_Store
+.idea/
+/.vscode/
+npm-debug.log
+yarn-error.log
+coverage/
+/.cache
