@@ -12,15 +12,28 @@ async function main(){
   await Ingredient.deleteMany({});
   await Recipe.deleteMany({});
   const ingredients = [
-    { key: 'tomato', name: 'Tomato', price: 1 },
-    { key: 'lettuce', name: 'Lettuce', price: 1 },
-    { key: 'cheese', name: 'Cheese', price: 2 },
-    { key: 'bread', name: 'Bread', price: 1 }
+    { key: 'tomate', name: 'Tomate', price: 1 },
+    { key: 'salade', name: 'Salade', price: 1 },
+    { key: 'fromage', name: 'Fromage', price: 2 },
+    { key: 'pain', name: 'Pain', price: 1 },
+    { key: 'riz', name: 'Riz', price: 1 },
+    { key: 'boeuf', name: 'Boeuf', price: 3 },
+    { key: 'poulet', name: 'Poulet', price: 2 },
+    { key: 'pates', name: 'Pâtes', price: 1 },
+    { key: 'patate', name: 'Patate', price: 1 },
+    { key: 'oeuf', name: 'Oeuf', price: 1 }
   ];
   await Ingredient.insertMany(ingredients);
-  // sample salad recipe (3x3: center row lettuce,tomato,cheese)
-  const salad = { key: 'sample-salad', name: 'Sample Salad', pattern: [null,null,null,'lettuce','tomato','cheese',null,null,null], price: 8 };
-  await Recipe.create(salad);
+  // Recipes in French with French ingredient keys
+  const recipes = [
+    { key: 'salade-composee', name: 'Salade Composée', pattern: [null,'salade','tomate','fromage',null,null,null,null,null], price: 8 },
+    { key: 'pates-bolo', name: 'Pâtes Bolognaise', pattern: ['pates','boeuf','tomate',null,null,null,null,null,null], price: 12 },
+    { key: 'sandwich-club', name: 'Sandwich Club', pattern: ['pain','poulet','fromage',null,null,null,null,null,null], price: 10 },
+    { key: 'bowl-riz', name: 'Bol de Riz Composé', pattern: ['riz','boeuf','tomate',null,null,null,null,null,null], price: 11 },
+    { key: 'gratin-patates', name: 'Gratin Patates', pattern: ['patate','fromage','oeuf',null,null,null,null,null,null], price: 9 },
+    { key: 'chilli', name: 'Chilli', pattern: ['tomate','boeuf','riz',null,null,null,null,null,null], price: 13 }
+  ];
+  await Recipe.insertMany(recipes);
   console.log('seeded');
   process.exit(0);
 }

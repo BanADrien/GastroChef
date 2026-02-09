@@ -24,6 +24,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/gastrochef'
 app.use('/auth', require('./routes/auth'));
 app.use('/lab', require('./routes/lab'));
 app.use('/market', require('./routes/marketplace'));
+app.use('/shop', require('./routes/shop'));
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
