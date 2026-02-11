@@ -14,30 +14,37 @@ router.get('/status', async (req, res) => {
 
 // Buy an ingredient
 router.post('/buy', async (req, res) => {
-  const { userId, ingredientKey } = req.body;
-  if (!userId || !ingredientKey) return res.status(400).json({ error: 'userId and ingredientKey required' });
-  
-  const user = await User.findById(userId);
-  if (!user) return res.status(404).json({ error: 'user not found' });
-  
-  const ingredient = await Ingredient.findOne({ key: ingredientKey });
-  if (!ingredient) return res.status(404).json({ error: 'ingredient not found' });
-  
-  if (user.coins < ingredient.price) return res.status(400).json({ error: 'not enough coins' });
-  
-  // Deduct coins
-  user.coins -= ingredient.price;
-  
-  // Add to inventory
-  const existing = user.inventory.find(i => i.key === ingredientKey);
-  if (existing) {
-    existing.count += 1;
-  } else {
-    user.inventory.push({ key: ingredientKey, count: 1 });
+  try {
+    const { userId, ingredientKey, quantity } = req.body;
+    if (!userId || !ingredientKey) return res.status(400).json({ error: 'userId and ingredientKey required' });
+    const qty = Math.max(1, parseInt(quantity) || 1);
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'user not found' });
+
+    const ingredient = await Ingredient.findOne({ key: ingredientKey });
+    if (!ingredient) return res.status(404).json({ error: 'ingredient not found' });
+
+    const totalPrice = ingredient.price * qty;
+    if (user.coins < totalPrice) return res.status(400).json({ error: 'not enough coins' });
+
+    // Deduct coins
+    user.coins -= totalPrice;
+
+    // Add to inventory
+    const existing = user.inventory.find(i => i.key === ingredientKey);
+    if (existing) {
+      existing.count += qty;
+    } else {
+      user.inventory.push({ key: ingredientKey, count: qty });
+    }
+
+    await user.save();
+    res.json({ success: true, coins: user.coins, inventory: user.inventory });
+  } catch (err) {
+    console.error('Buy error:', err);
+    res.status(500).json({ error: err.message });
   }
-  
-  await user.save();
-  res.json({ success: true, coins: user.coins, inventory: user.inventory });
 });
 
 // Use ingredient from inventory (subtract from inventory, add to craft)

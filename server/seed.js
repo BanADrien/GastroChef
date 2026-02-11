@@ -29,7 +29,6 @@ async function main(){
     { key: 'salade-composee', name: 'Salade Composée', pattern: [null,'salade','tomate','fromage',null,null,null,null,null], price: 8 },
     { key: 'pates-bolo', name: 'Pâtes Bolognaise', pattern: ['pates','boeuf','tomate',null,null,null,null,null,null], price: 12 },
     { key: 'sandwich-club', name: 'Sandwich Club', pattern: ['pain','poulet','fromage',null,null,null,null,null,null], price: 10 },
-    { key: 'bowl-riz', name: 'Bol de Riz Composé', pattern: ['riz','boeuf','tomate',null,null,null,null,null,null], price: 11 },
     { key: 'gratin-patates', name: 'Gratin Patates', pattern: ['patate','fromage','oeuf',null,null,null,null,null,null], price: 9 },
     { key: 'chilli', name: 'Chilli', pattern: ['tomate','boeuf','riz',null,null,null,null,null,null], price: 13 }
   ];

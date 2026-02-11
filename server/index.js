@@ -26,6 +26,12 @@ app.use('/lab', require('./routes/lab'));
 app.use('/market', require('./routes/marketplace'));
 app.use('/shop', require('./routes/shop'));
 
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Global error:', err);
+  res.status(500).json({ error: err.message || 'Internal server error' });
+});
+
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 

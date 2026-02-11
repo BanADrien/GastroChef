@@ -8,19 +8,24 @@ router.post('/register', async (req, res) => {
   const { restaurantName, email, password } = req.body;
   const hash = await bcrypt.hash(password, 10);
   try {
-    const user = await User.create({ restaurantName, email, passwordHash: hash, balance: 100 });
+    const user = await User.create({ restaurantName, email, passwordHash: hash, coins: 1000 });
     res.json({ ok: true });
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (!user) return res.status(401).json({ error: 'invalid' });
-  const match = await bcrypt.compare(password, user.passwordHash);
-  if (!match) return res.status(401).json({ error: 'invalid' });
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
-  res.json({ token });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ error: 'invalid' });
+    const match = await bcrypt.compare(password, user.passwordHash);
+    if (!match) return res.status(401).json({ error: 'invalid' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+    res.json({ token, userId: user._id.toString() });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

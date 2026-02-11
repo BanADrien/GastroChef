@@ -11,9 +11,19 @@ export default function Login(){
     e.preventDefault()
     try{
       const r = await axios.post('http://localhost:4000/auth/login',{ email, password })
-      localStorage.setItem('token', r.data.token)
-      nav('/lab')
-    }catch(err){ alert('login failed') }
+      console.log('Login response:', r.data)
+      if (r.data.userId) {
+        localStorage.setItem('token', r.data.token)
+        localStorage.setItem('userId', r.data.userId)
+        console.log('Stored userId:', localStorage.getItem('userId'))
+        nav('/lab')
+      } else {
+        alert('Error: userId not received from server')
+      }
+    }catch(err){
+      console.error('Login error:', err)
+      alert('login failed')
+    }
   }
 
   return (
