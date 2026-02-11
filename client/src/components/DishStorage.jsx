@@ -45,14 +45,14 @@ export default function DishStorage({ dishes = [], onDrop, onRemove }) {
                   <div
                     draggable
                     onDragStart={e => {
-                      e.dataTransfer.setData('dishKey', dish.key)
+                      e.dataTransfer.setData('dishKey', idx.toString())
                       e.dataTransfer.effectAllowed = 'move'
                     }}
                     style={{ cursor: 'grab', marginBottom: 4 }}
                   >
                     <SmartImg
                       srcs={[
-                        isBurnt ? '/images/plats/cramé.png' : `/images/plats/${dish.key}.png`,
+                        isBurnt ? '/images/plats/cramé.png' : (dish.image ? `/images/plats/${dish.image}` : `/images/plats/${encodeURIComponent(dish.name)}.png`),
                         isBurnt ? '/images/plats/cramé.png' : `/images/plats/${encodeURIComponent(dish.name)}.png`,
                       ]}
                       alt={dish.name}

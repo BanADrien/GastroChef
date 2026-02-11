@@ -51,7 +51,7 @@ export default function RecipeBook({ modalMode }){
                 {/* Plat image et nom */}
                 <div style={{ width: 90, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   {found ? (
-                    <SmartImg srcs={[`/images/plats/${encodeURIComponent(r.name)}.png`, `/images/plats/${r.key}.png`]} alt={r.name} style={{ width: 80, height: 64, objectFit: 'contain', borderRadius: 8, background: '#f9f9f9' }} />
+                    <SmartImg srcs={r.image ? [`/images/plats/${r.image}`] : [`/images/plats/${encodeURIComponent(r.name)}.png`, `/images/plats/${r.key}.png`]} alt={r.name} style={{ width: 80, height: 64, objectFit: 'contain', borderRadius: 8, background: '#f9f9f9' }} />
                   ) : (
                     <div style={{ width: 80, height: 64, borderRadius: 8, background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 28 }}>?</div>
                   )}

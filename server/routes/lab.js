@@ -8,18 +8,29 @@ const router = express.Router();
 router.post('/discover', async (req, res) => {
   try {
     const { pattern, userId } = req.body; // expect array of strings (length 9)
-    if (!Array.isArray(pattern) || pattern.length !== 9) return res.status(400).json({ error: 'pattern' });
+    console.log('=== DISCOVER REQUEST ===');
+    console.log('Pattern received:', pattern);
+    console.log('UserId:', userId);
+    
+    if (!Array.isArray(pattern) || pattern.length !== 9) return res.status(400).json({ error: 'pattern must be array of 9' });
     
     const user = userId ? await User.findById(userId) : null;
+    console.log('User found:', user ? user._id : 'NO USER');
+    if (user) {
+      console.log('User inventory:', user.inventory);
+    }
     
     // Extract non-null ingredients from the user's pattern
     const userIngredients = pattern.filter(ing => ing !== null && ing !== undefined);
+    console.log('Extracted ingredients from pattern:', userIngredients);
     
     // Verify user has all required ingredients in inventory
-    if (user) {
+    if (user && userIngredients.length > 0) {
       for (const key of userIngredients) {
         const inv = user.inventory.find(i => i.key === key);
+        console.log(`Checking ingredient ${key}:`, inv ? `found (count: ${inv.count})` : 'NOT FOUND');
         if (!inv || inv.count < 1) {
+          console.log(`Missing ingredient: ${key}`);
           return res.status(400).json({ success: false, error: `Missing ingredient: ${key}` });
         }
       }
@@ -27,14 +38,22 @@ router.post('/discover', async (req, res) => {
     
     // Find recipe with matching ingredient set (order-insensitive)
     const recipes = await Recipe.find();
+    console.log('Total recipes in DB:', recipes.length);
+    
     const userIngredientsSet = userIngredients.sort();
+    console.log('User ingredients sorted:', userIngredientsSet);
+    
     const found = recipes.find(r => {
       const recipeIngredients = r.pattern.filter(ing => ing !== null && ing !== undefined).sort();
-      return JSON.stringify(userIngredientsSet) === JSON.stringify(recipeIngredients);
+      const matches = JSON.stringify(userIngredientsSet) === JSON.stringify(recipeIngredients);
+      console.log(`Recipe ${r.key}: pattern=${r.pattern}, extracted=${recipeIngredients}, matches=${matches}`);
+      return matches;
     });
     
+    console.log('Recipe found:', found ? found.key : 'NONE');
+    
     // Consume ingredients either way
-    if (user) {
+    if (user && userIngredients.length > 0) {
       for (const key of userIngredients) {
         const inv = user.inventory.find(i => i.key === key);
         if (inv) {
@@ -45,6 +64,7 @@ router.post('/discover', async (req, res) => {
         }
       }
       await user.save();
+      console.log('Ingredients consumed, inventory updated');
     }
     
     if (found) {
@@ -52,10 +72,12 @@ router.post('/discover', async (req, res) => {
       if (user && !user.recipes.includes(found._id)) {
         user.recipes.push(found._id);
         await user.save();
+        console.log('Recipe added to user');
       }
       return res.json({ success: true, recipe: found, inventory: user?.inventory || [] });
     }
     // on fail, ingredients already destroyed
+    console.log('=== NO MATCH ===');
     return res.json({ success: false, inventory: user?.inventory || [] });
   } catch (err) {
     console.error('Discover error:', err);

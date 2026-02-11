@@ -7,126 +7,21 @@ import Shop from '../components/Shop';
 import SmartImg from '../components/SmartImg';
 import TrashBin from '../components/TrashBin';
 import DishStorage from '../components/DishStorage';
+import RecipeBook from './RecipeBook';
 import axios from 'axios';
 
 export default function Lab() {
-                                                                            useEffect(() => {
-                                                                              setMoveMode(null);
-                                                                            }, [shopOpen]);
-                                                                          useEffect(() => {
-                                                                            setMoveMode(null);
-                                                                          }, [shopOpen]);
-                                                                        useEffect(() => {
-                                                                          setMoveMode(null);
-                                                                        }, [shopOpen]);
-                                                                      useEffect(() => {
-                                                                        setMoveMode(null);
-                                                                      }, [shopOpen]);
-                                                                    useEffect(() => {
-                                                                      setMoveMode(null);
-                                                                    }, [shopOpen]);
-                                                                  useEffect(() => {
-                                                                    setMoveMode(null);
-                                                                  }, [shopOpen]);
-                                                                useEffect(() => {
-                                                                  setMoveMode(null);
-                                                                }, [shopOpen]);
-                                                              useEffect(() => {
-                                                                setMoveMode(null);
-                                                              }, [shopOpen]);
-                                                            useEffect(() => {
-                                                              setMoveMode(null);
-                                                            }, [shopOpen]);
-                                                          useEffect(() => {
-                                                            setMoveMode(null);
-                                                          }, [shopOpen]);
-                                                        useEffect(() => {
-                                                          setMoveMode(null);
-                                                        }, [shopOpen]);
-                                                      useEffect(() => {
-                                                        setMoveMode(null);
-                                                      }, [shopOpen]);
-                                                    useEffect(() => {
-                                                      setMoveMode(null);
-                                                    }, [shopOpen]);
-                                                  useEffect(() => {
-                                                    setMoveMode(null);
-                                                  }, [shopOpen]);
-                                                useEffect(() => {
-                                                  setMoveMode(null);
-                                                }, [shopOpen]);
-                                              useEffect(() => {
-                                                setMoveMode(null);
-                                              }, [shopOpen]);
-                                            useEffect(() => {
-                                              setMoveMode(null);
-                                            }, [shopOpen]);
-                                          useEffect(() => {
-                                            setMoveMode(null);
-                                          }, [shopOpen]);
-                                        useEffect(() => {
-                                          setMoveMode(null);
-                                        }, [shopOpen]);
-                                      useEffect(() => {
-                                        setMoveMode(null);
-                                      }, [shopOpen]);
-                                    useEffect(() => {
-                                      setMoveMode(null);
-                                    }, [shopOpen]);
-                                  useEffect(() => {
-                                    setMoveMode(null);
-                                  }, [shopOpen]);
-                                useEffect(() => {
-                                  setMoveMode(null);
-                                }, [shopOpen]);
-                              useEffect(() => {
-                                setMoveMode(null);
-                              }, [shopOpen]);
-                            useEffect(() => {
-                              setMoveMode(null);
-                            }, [shopOpen]);
-                          useEffect(() => {
-                            setMoveMode(null);
-                          }, [shopOpen]);
-                        useEffect(() => {
-                          setMoveMode(null);
-                        }, [shopOpen]);
-                      useEffect(() => {
-                        setMoveMode(null);
-                      }, [shopOpen]);
-                    useEffect(() => {
-                      setMoveMode(null);
-                    }, [shopOpen]);
-                  useEffect(() => {
-                    setMoveMode(null);
-                  }, [shopOpen]);
-                useEffect(() => {
-                  setMoveMode(null);
-                }, [shopOpen]);
-              useEffect(() => {
-                setMoveMode(null);
-              }, [shopOpen]);
-            useEffect(() => {
-              setMoveMode(null);
-            }, [shopOpen]);
-          useEffect(() => {
-            setMoveMode(null);
-          }, [pattern]);
-        useEffect(() => {
-          setMoveMode(null);
-        }, [dishes]);
-      useEffect(() => {
-        setMoveMode(null);
-      }, [inventory]);
-    useEffect(() => {
-      setMoveMode(null);
-    }, [userId]);
+  // États
   const [pattern, setPattern] = useState(Array(9).fill(null));
   const [recipes, setRecipes] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [coins, setCoins] = useState(1000);
   const [shopOpen, setShopOpen] = useState(false);
   const [dishes, setDishes] = useState([null, null, null]);
+  const [moveMode, setMoveMode] = useState(null);
+  const [recipeBookOpen, setRecipeBookOpen] = useState(false);
+
+  // Variables simples
   const userId = localStorage.getItem('userId');
   const nav = useNavigate();
 
@@ -170,20 +65,26 @@ export default function Lab() {
   }
   async function tryDiscover() {
     try {
+      console.log('Attempting to discover with pattern:', pattern);
+      console.log('User inventory:', inventory);
+      
       const res = await axios.post('http://localhost:4000/lab/discover', {
         pattern,
         userId
       });
-      if (res.data.success) {
-        // Le plat prend toute la place des 9 cases
-        alert(`Félicitations ! Vous avez cuisiné : ${res.data.dish.name}`);
-        // On propose de déplacer le plat ou de le servir
-        setPattern(Array(9).fill(null)); // Vide la grille après cuisine
-        setMoveMode({ dish: res.data.dish }); // Remplace le plat en attente si un nouveau est cuisiné
+      console.log('Server response:', res.data);
+      
+      if (res.data.success && res.data.recipe) {
+        const recipe = res.data.recipe;
+        alert(`Félicitations ! Vous avez cuisiné : ${recipe.name}`);
+        // Vide la grille après cuisine
+        setPattern(Array(9).fill(null));
+        setMoveMode({ dish: recipe }); // Stocke la recette comme "plat"
         // Rafraîchir l'inventaire
         const invRes = await axios.get(`http://localhost:4000/lab/inventory/${userId}`);
         setInventory(invRes.data.inventory || []);
       } else {
+        console.log('No recipe matched or invalid response');
         alert('Aucune recette ne correspond à ce motif. Essayez autre chose !');
       }
     } catch (err) {
@@ -191,8 +92,6 @@ export default function Lab() {
       alert('Une erreur est survenue. Veuillez réessayer.');
     }
   }
-  // Mode déplacement plat après cuisine
-  const [moveMode, setMoveMode] = useState(null);
 
   return (
     <div style={{
@@ -413,71 +312,95 @@ export default function Lab() {
           </button>
           {/* Boutique (modal) */}
           <Shop isOpen={shopOpen} onClose={() => setShopOpen(false)} onBuy={handleBuySuccess} />
-          {/* Poubelle */}
-          <div style={{ position: 'fixed', right: '3vw', bottom: '2vh', zIndex: 1002 }}>
-            <TrashBin
-              onDrop={handleTrashDrop}
-              onClick={() => alert('Glisse un ingrédient ou un plat ici pour le jeter !')}
-              decorMode
-            />
-          </div>
         </div>
       </div>
+
+      {/* Barre inférieure : livre de recettes - poubelle - laboratoire */}
+      <div style={{
+        position: 'fixed',
+        left: '3vw',
+        bottom: '2vh',
+        display: 'flex',
+        alignItems: 'flex-end',
+        gap: 24,
+        zIndex: 3000
+      }}>
+        {/* Livre de recettes - à gauche */}
+        <button
+          onClick={() => setRecipeBookOpen(true)}
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.95)',
+            border: '3px solid #8B4513',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            zIndex: 3000
+          }}
+          title="Livre de recettes"
+        >
+          <SmartImg srcs={['/images/object/livre.png']} alt='Livre de recettes' style={{ width: 60, height: 60 }} />
+        </button>
+
+        {/* Poubelle - au centre */}
+        <TrashBin
+          onDrop={handleTrashDrop}
+          onClick={() => alert('Glisse un ingrédient ou un plat ici pour le jeter !')}
+          decorMode
+        />
+      </div>
+
+      {/* Livre de recettes (modal) */}
+      {recipeBookOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 3001
+        }}>
+          <div style={{
+            position: 'relative',
+            background: 'white',
+            borderRadius: 12,
+            maxWidth: 800,
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            width: '90%'
+          }}>
+            <button
+              onClick={() => setRecipeBookOpen(false)}
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: '#f0f0f0',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 20,
+                fontWeight: 'bold',
+                zIndex: 10
+              }}
+            >
+              ×
+            </button>
+            <RecipeBook modalMode />
+          </div>
+        </div>
+      )}
     </div>
   );
-
-  async function tryDiscover() {
-    try {
-      const res = await axios.post('http://localhost:4000/lab/discover', {
-        pattern,
-        userId
-      });
-      if (res.data.success) {
-        alert(`Félicitations ! Vous avez découvert : ${res.data.dish.name}`);
-        setDishes(prev => {
-          const newDishes = [...prev];
-          const emptyIndex = newDishes.findIndex(d => d === null);
-          if (emptyIndex !== -1) {
-            newDishes[emptyIndex] = res.data.dish;
-          }
-          return newDishes;
-        });
-        // Rafraîchir l'inventaire
-        const invRes = await axios.get(`http://localhost:4000/lab/inventory/${userId}`);
-        setInventory(invRes.data.inventory || []);
-      } else {
-        alert('Aucune recette ne correspond à ce motif. Essayez autre chose !');
-      }
-    } catch (err) {
-      console.error('Erreur lors de la découverte', err);
-      alert('Une erreur est survenue. Veuillez réessayer.');
-    }
-  }
-
-  function handleDishDrop(dish, index) {
-    // Ici on pourrait implémenter une action sur le plat (ex: le servir pour gagner des pièces)
-    alert(`Vous avez interagi avec le plat : ${dish.name}`);
-  }   
-  function handleDishRemove(index) {
-    setDishes(prev => {
-      const newDishes = [...prev];
-      newDishes[index] = null;
-      return newDishes;
-    });
-  }
-
-  function handleTrashDrop(type, key) {
-    if (type === 'ingredient') {
-      // Supprimer l'ingrédient de l'inventaire
-      setInventory(prev => prev.filter(inv => inv.key !== key));
-    } else if (type === 'dish') {
-      // Supprimer le plat (ici on suppose que key est l'index du plat dans le stockage)
-      const index = parseInt(key);
-      handleDishRemove(index);
-    }
-  } 
-  function handleBuySuccess(newInventory, newCoins) {
-    setInventory(newInventory);
-    setCoins(newCoins);
-  }
 }

@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const RecipeSchema = new mongoose.Schema({
   key: { type: String, required: true, unique: true },
   name: { type: String, required: true },
+  image: { type: String },
   pattern: [{ type: String }],
   price: { type: Number, default: 5 }
 });

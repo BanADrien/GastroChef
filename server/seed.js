@@ -26,11 +26,11 @@ async function main(){
   await Ingredient.insertMany(ingredients);
   // Recipes in French with French ingredient keys
   const recipes = [
-    { key: 'salade-composee', name: 'Salade Composée', pattern: [null,'salade','tomate','fromage',null,null,null,null,null], price: 8 },
-    { key: 'pates-bolo', name: 'Pâtes Bolognaise', pattern: ['pates','boeuf','tomate',null,null,null,null,null,null], price: 12 },
-    { key: 'sandwich-club', name: 'Sandwich Club', pattern: ['pain','poulet','fromage',null,null,null,null,null,null], price: 10 },
-    { key: 'gratin-patates', name: 'Gratin Patates', pattern: ['patate','fromage','oeuf',null,null,null,null,null,null], price: 9 },
-    { key: 'chilli', name: 'Chilli', pattern: ['tomate','boeuf','riz',null,null,null,null,null,null], price: 13 }
+    { key: 'salade-composee', name: 'Salade Composée', image: 'salade composé.png', pattern: [null,'salade','tomate','fromage',null,null,null,null,null], price: 8 },
+    { key: 'pates-bolo', name: 'Pâtes Bolognaise', image: 'pates bolo.png', pattern: ['pates','boeuf','tomate',null,null,null,null,null,null], price: 12 },
+    { key: 'sandwich-club', name: 'Sandwich Club', image: 'sandwitch.png', pattern: ['pain','poulet','fromage',null,null,null,null,null,null], price: 10 },
+    { key: 'gratin-patates', name: 'Gratin Patates', image: 'grattin.png', pattern: ['patate','fromage','oeuf',null,null,null,null,null,null], price: 9 },
+    { key: 'chilli', name: 'Chilli', image: 'chilli.png', pattern: ['tomate','boeuf','riz',null,null,null,null,null,null], price: 13 }
   ];
   await Recipe.insertMany(recipes);
   console.log('seeded');
