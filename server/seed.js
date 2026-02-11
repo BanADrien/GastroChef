@@ -24,7 +24,7 @@ async function main(){
     { key: 'oeuf', name: 'Oeuf', price: 1 }
   ];
   await Ingredient.insertMany(ingredients);
-  // Recipes in French with French ingredient keys (6 slots pattern: 2x3)
+
   const recipes = [
     { key: 'salade-composee', name: 'Salade Composée', image: 'salade composé.png', pattern: ['salade','tomate','fromage',null,null,null], price: 8 },
     { key: 'pates-bolo', name: 'Pâtes Bolognaise', image: 'pates bolo.png', pattern: ['pates','boeuf','tomate',null,null,null], price: 12 },
