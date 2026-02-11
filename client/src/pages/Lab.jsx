@@ -8,6 +8,7 @@ import SmartImg from '../components/SmartImg';
 import TrashBin from '../components/TrashBin';
 import DishStorage from '../components/DishStorage';
 import RecipeBook from './RecipeBook';
+import OrderPanel from '../components/OrderPanel';
 import axios from 'axios';
 
 export default function Lab() {
@@ -18,8 +19,9 @@ export default function Lab() {
   const [coins, setCoins] = useState(1000);
   const [shopOpen, setShopOpen] = useState(false);
   const [dishes, setDishes] = useState([null, null, null]);
-  const [moveMode, setMoveMode] = useState(null);
   const [recipeBookOpen, setRecipeBookOpen] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [allRecipes, setAllRecipes] = useState([]);
 
   // Variables simples
   const userId = localStorage.getItem('userId');
@@ -39,6 +41,42 @@ export default function Lab() {
     }
     fetchInventory();
   }, [userId]);
+
+  // Charger toutes les recettes
+  useEffect(() => {
+    async function fetchRecipes() {
+      try {
+        const res = await axios.get('http://localhost:4000/lab/recipes');
+        setAllRecipes(res.data);
+      } catch (err) {
+        console.error('Erreur chargement recettes', err);
+      }
+    }
+    fetchRecipes();
+  }, []);
+
+  // Générer une nouvelle commande toutes les 30 secondes
+  useEffect(() => {
+    function generateOrder() {
+      if (allRecipes.length === 0) return;
+      const recipe = allRecipes[Math.floor(Math.random() * allRecipes.length)];
+      const newOrder = {
+        id: Date.now(),
+        recipeKey: recipe.key,
+        recipe: recipe,
+        reward: recipe.price || 10
+      };
+      setOrders(prev => [...prev, newOrder]);
+    }
+
+    // Générer une première commande
+    if (allRecipes.length > 0 && orders.length === 0) {
+      generateOrder();
+    }
+
+    const interval = setInterval(generateOrder, 30000);
+    return () => clearInterval(interval);
+  }, [allRecipes, orders.length]);
 
   // Handlers corrigés (déclarés avant le return)
   function handleDishDrop(dish, index) {
@@ -63,6 +101,38 @@ export default function Lab() {
     if (Array.isArray(newInventory)) setInventory(newInventory);
     if (typeof newCoins === 'number') setCoins(newCoins);
   }
+
+  async function handleSendDish(orderId, dishIndex) {
+    if (dishIndex === -1 || !dishes[dishIndex]) {
+      alert('Plat non disponible !');
+      return;
+    }
+
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    // Supprimer le plat des slots
+    handleDishRemove(dishIndex);
+
+    // Ajouter les pièces
+    const newCoins = coins + order.reward;
+    setCoins(newCoins);
+
+    // Mettre à jour les coins sur le serveur
+    try {
+      await axios.post('http://localhost:4000/lab/update-coins', {
+        userId,
+        coins: newCoins
+      });
+    } catch (err) {
+      console.error('Erreur mise à jour coins:', err);
+    }
+
+    // Supprimer la commande
+    setOrders(prev => prev.filter(o => o.id !== orderId));
+    alert(`✅ Commande envoyée ! +${order.reward} pièces`);
+  }
+
   async function tryDiscover() {
     try {
       console.log('Attempting to discover with pattern:', pattern);
@@ -76,10 +146,22 @@ export default function Lab() {
       
       if (res.data.success && res.data.recipe) {
         const recipe = res.data.recipe;
-        alert(`Félicitations ! Vous avez cuisiné : ${recipe.name}`);
+        
+        // Trouver le premier emplacement libre
+        const freeIndex = dishes.findIndex(d => d === null);
+        if (freeIndex !== -1) {
+          setDishes(prev => {
+            const newDishes = [...prev];
+            newDishes[freeIndex] = recipe;
+            return newDishes;
+          });
+          alert(`Félicitations ! Vous avez cuisiné : ${recipe.name}`);
+        } else {
+          alert(`${recipe.name} créé mais plus d'emplacement libre !`);
+        }
+        
         // Vide la grille après cuisine
-        setPattern(Array(9).fill(null));
-        setMoveMode({ dish: recipe }); // Stocke la recette comme "plat"
+        setPattern(Array(6).fill(null));
         // Rafraîchir l'inventaire
         const invRes = await axios.get(`http://localhost:4000/lab/inventory/${userId}`);
         setInventory(invRes.data.inventory || []);
@@ -101,12 +183,25 @@ export default function Lab() {
       overflow: 'hidden',
       background: 'url(/images/decors/fond.png) center/cover no-repeat, #fff'
     }}>
+      {/* Colonne du centre : commandes */}
+      <div style={{
+        position: 'absolute',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        top: '10vh',
+        zIndex: 900,
+        minWidth: 280,
+        maxWidth: 340
+      }}>
+        <OrderPanel orders={orders} onSendDish={handleSendDish} dishes={dishes} />
+      </div>
+
       {/* Colonne de droite : plats préparés + inventaire */}
       <div style={{
         position: 'absolute',
         right: '3vw',
         top: '10vh',
-        zIndex: 3000,
+        zIndex: 900,
         display: 'flex',
         flexDirection: 'column',
         gap: 24,
@@ -121,43 +216,6 @@ export default function Lab() {
         }}>
           <h3 style={{ marginBottom: 8, textAlign: 'center' }}>Plats préparés</h3>
           <DishStorage dishes={dishes} onDrop={handleDishDrop} onRemove={handleDishRemove} />
-          {/* Si un plat vient d'être cuisiné, proposer de le déplacer ou servir */}
-          {moveMode && moveMode.dish && (
-            <div style={{ marginTop: 18, background: '#f7fff7', borderRadius: 12, padding: 12, boxShadow: '0 2px 8px #cde8c9' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <SmartImg srcs={[`/images/ingredients/${moveMode.dish.key}.png`]} alt={moveMode.dish.name} style={{ width: 48, height: 48 }} />
-                <span style={{ fontWeight: 700, fontSize: 17 }}>{moveMode.dish.name}</span>
-              </div>
-              <div style={{ marginTop: 10, display: 'flex', gap: 12 }}>
-                {[0,1,2].map(idx => (
-                  <button key={idx} style={{ padding: '6px 12px', borderRadius: 8, background: !!dishes[idx] ? '#bbb' : '#4CAF50', color: '#fff', fontWeight: 600, cursor: !!dishes[idx] ? 'not-allowed' : 'pointer' }}
-                    onClick={() => {
-                      if (!!dishes[idx]) return;
-                      setDishes(arr => {
-                        const newArr = [...arr];
-                        if (!newArr[idx]) newArr[idx] = moveMode.dish;
-                        return newArr;
-                      });
-                      setMoveMode(null);
-                    }}
-                    disabled={!!dishes[idx]}
-                  >
-                    Mettre dans l'emplacement {idx+1}
-                  </button>
-                ))}
-                <button style={{ padding: '6px 12px', borderRadius: 8, background: '#FF6B6B', color: '#fff', fontWeight: 600, cursor: 'pointer' }}
-                  onClick={async () => {
-                    if (!moveMode || !moveMode.dish) return;
-                    alert('Plat servi au client !');
-                    setMoveMode(null);
-                    // Optionnel : rafraîchir l'inventaire après avoir servi
-                    const invRes = await axios.get(`http://localhost:4000/lab/inventory/${userId}`);
-                    setInventory(invRes.data.inventory || []);
-                  }}
-                >Servir au client</button>
-              </div>
-            </div>
-          )}
         </div>
         {/* Inventaire */}
         <div style={{
@@ -193,9 +251,9 @@ export default function Lab() {
             </button>
           </div>
           {inventory.length === 0 ? (
-            <div style={{ color: '#888', fontSize: 14 }}>Aucun ingrédient</div>
+            <div style={{ color: '#888', fontSize: 14, textAlign: 'center' }}>Aucun ingrédient</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {inventory.map((inv, idx) => (
                 <div
                   key={idx}
@@ -205,25 +263,30 @@ export default function Lab() {
                     e.dataTransfer.effectAllowed = 'copyMove';
                   }}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: 8,
-                    border: '1px solid #ddd',
-                    borderRadius: 6,
+                    position: 'relative',
+                    border: '2px solid #ddd',
+                    borderRadius: 8,
                     background: '#fff',
                     cursor: 'grab',
-                    minHeight: 48
+                    aspectRatio: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 8
                   }}
                 >
-                  <SmartImg srcs={[`/images/ingredients/${inv.key}.png`]} alt={inv.key} style={{ width: 32, height: 32 }} />
-                  <div style={{ fontSize: 13, flex: 1 }}>{inv.key}</div>
+                  <SmartImg srcs={[`/images/ingredients/${inv.key}.png`]} alt={inv.key} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   <div style={{
-                    fontSize: 12,
+                    position: 'absolute',
+                    bottom: 4,
+                    right: 4,
+                    fontSize: 11,
                     fontWeight: 'bold',
-                    background: '#e8f5e9',
-                    padding: '2px 8px',
-                    borderRadius: 4
+                    background: 'rgba(76, 175, 80, 0.9)',
+                    color: '#fff',
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
                   }}>
                     {inv.count}x
                   </div>
@@ -245,7 +308,8 @@ export default function Lab() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        paddingLeft: '2vw'
+        paddingLeft: '2vw',
+        pointerEvents: 'none'
       }}>
         <div style={{
           background: '#fff',
@@ -256,7 +320,8 @@ export default function Lab() {
           maxHeight: '90vh',
           overflowY: 'auto',
           padding: 32,
-          position: 'relative'
+          position: 'relative',
+          pointerEvents: 'auto'
         }}>
           <h2 style={{ marginBottom: 8, fontSize: 22, fontWeight: 700, color: '#333' }}>Laboratory</h2>
           <CraftGrid

@@ -114,4 +114,22 @@ router.get('/inventory/:userId', async (req, res) => {
   }
 });
 
+// Update user coins
+router.post('/update-coins', async (req, res) => {
+  try {
+    const { userId, coins } = req.body;
+    if (!userId || typeof coins !== 'number') {
+      return res.status(400).json({ error: 'userId and coins required' });
+    }
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'user not found' });
+    user.coins = coins;
+    await user.save();
+    res.json({ success: true, coins: user.coins });
+  } catch (err) {
+    console.error('Update coins error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
