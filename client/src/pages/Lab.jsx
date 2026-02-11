@@ -12,7 +12,7 @@ import axios from 'axios';
 
 export default function Lab() {
   // États
-  const [pattern, setPattern] = useState(Array(9).fill(null));
+  const [pattern, setPattern] = useState(Array(6).fill(null));
   const [recipes, setRecipes] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [coins, setCoins] = useState(1000);
@@ -166,7 +166,32 @@ export default function Lab() {
           boxShadow: '0 4px 24px #bbb',
           padding: 18,
         }}>
-          <h3 style={{ marginBottom: 8 }}>Mon Inventaire</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ margin: 0 }}>Mon Inventaire</h3>
+              <SmartImg srcs={['/images/object/piece.png']} style={{ width: 24, height: 24 }} />
+              <span style={{ fontWeight: 700, fontSize: 16 }}>{coins}</span>
+            </div>
+            <button
+              onClick={() => setShopOpen(true)}
+              style={{
+                padding: '6px 12px',
+                background: '#4CAF50',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: 12,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6
+              }}
+            >
+              <SmartImg srcs={['/images/object/achat.png']} style={{ width: 16, height: 16 }} />
+              Boutique
+            </button>
+          </div>
           {inventory.length === 0 ? (
             <div style={{ color: '#888', fontSize: 14 }}>Aucun ingrédient</div>
           ) : (
@@ -219,7 +244,8 @@ export default function Lab() {
         zIndex: 2000,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingLeft: '2vw'
       }}>
         <div style={{
           background: '#fff',
@@ -243,29 +269,8 @@ export default function Lab() {
               count: inv.count
             }))}
           />
-          {/* Affichage pièces et bouton boutique */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0 8px 0', justifyContent: 'center' }}>
-            <SmartImg srcs={['/images/object/piece.png']} style={{ width: 28, height: 28 }} />
-            <span style={{ fontWeight: 700, fontSize: 18 }}>{coins}</span>
-            <button
-              onClick={() => setShopOpen(true)}
-              style={{
-                padding: '6px 14px',
-                background: '#4CAF50',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 8,
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: 15,
-                marginLeft: 8
-              }}
-            >
-              <SmartImg srcs={['/images/object/achat.png']} style={{ width: 22, height: 22, marginRight: 6 }} />
-              Boutique
-            </button>
-          </div>
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+          {/* Affichage du bouton cuisiner */}
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 18 }}>
             <button
               onClick={tryDiscover}
               style={{
@@ -288,7 +293,7 @@ export default function Lab() {
             </button>
           </div>
           <button
-            onClick={() => setPattern(Array(9).fill(null))}
+            onClick={() => setPattern(Array(6).fill(null))}
             aria-label="Vider la table"
             style={{
               position: 'absolute',
@@ -322,7 +327,7 @@ export default function Lab() {
         bottom: '2vh',
         display: 'flex',
         alignItems: 'flex-end',
-        gap: 24,
+        gap: 8,
         zIndex: 3000
       }}>
         {/* Livre de recettes - à gauche */}

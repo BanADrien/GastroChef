@@ -47,9 +47,9 @@ export default function CraftGrid({ pattern, onChange, inventory = [], ingredien
       boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
       padding: 16,
       minWidth: 300,
-      minHeight: 300
+      minHeight: 200
     }}>
-      {Array.from({ length: 9 }).map((_, i) => {
+      {Array.from({ length: 6 }).map((_, i) => {
         const key = pattern[i]
         const ing = key ? findIngredient(key) : null
         return (

@@ -4,15 +4,15 @@ const Ingredient = require('../models/Ingredient');
 const User = require('../models/User');
 const router = express.Router();
 
-// Check a 3x3 pattern: array of 9 ingredient keys
+// Check a 3x2 pattern: array of 6 ingredient keys
 router.post('/discover', async (req, res) => {
   try {
-    const { pattern, userId } = req.body; // expect array of strings (length 9)
+    const { pattern, userId } = req.body; // expect array of strings (length 6)
     console.log('=== DISCOVER REQUEST ===');
     console.log('Pattern received:', pattern);
     console.log('UserId:', userId);
     
-    if (!Array.isArray(pattern) || pattern.length !== 9) return res.status(400).json({ error: 'pattern must be array of 9' });
+    if (!Array.isArray(pattern) || pattern.length !== 6) return res.status(400).json({ error: 'pattern must be array of 6' });
     
     const user = userId ? await User.findById(userId) : null;
     console.log('User found:', user ? user._id : 'NO USER');

@@ -21,12 +21,12 @@ export default function TrashBin({ onDrop, onClick, decorMode }) {
       onDrop={handleDrop}
       onClick={onClick}
       style={{
-        position: decorMode ? 'fixed' : 'relative',
-        right: decorMode ? '6vw' : 'auto',
-        bottom: decorMode ? 0 : 'auto',
-        zIndex: decorMode ? 1002 : 'auto',
-        width: 180,
-        height: 180,
+        position: decorMode ? 'relative' : 'fixed',
+        right: decorMode ? 'auto' : '6vw',
+        bottom: decorMode ? 'auto' : 0,
+        zIndex: decorMode ? 'auto' : 1002,
+        width: decorMode ? 90 : 180,
+        height: decorMode ? 90 : 180,
         background: 'none',
         display: 'flex',
         alignItems: 'flex-end',
@@ -36,7 +36,7 @@ export default function TrashBin({ onDrop, onClick, decorMode }) {
       }}
       title="Clique ou glisse ici pour jeter"
     >
-      <SmartImg srcs={["/images/decors/poubelle.png"]} alt="Poubelle" style={{ width: 170, height: 170 }} />
+      <SmartImg srcs={["/images/decors/poubelle.png"]} alt="Poubelle" style={{ width: decorMode ? 85 : 170, height: decorMode ? 85 : 170 }} />
     </div>
   )
 }
