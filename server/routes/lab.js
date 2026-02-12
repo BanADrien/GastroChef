@@ -29,8 +29,9 @@ router.post('/reset-satisfaction', async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: 'user not found' });
     user.satisfaction = 20;
+    user.stars = 3; // Reset stars to 3
     await user.save();
-    res.json({ success: true, satisfaction: user.satisfaction });
+    res.json({ success: true, satisfaction: user.satisfaction, stars: user.stars });
   } catch (err) {
     console.error('Reset satisfaction error:', err);
     res.status(500).json({ error: err.message });
@@ -76,7 +77,7 @@ router.post('/remove-ingredient', async (req, res) => {
 // Met à jour la satisfaction du joueur (commande honorée ou rejetée)
 router.post('/order-feedback', async (req, res) => {
   try {
-    const { userId, success } = req.body; // success: true (honorée), false (rejetée/expirée)
+    const { userId, success, isVIP } = req.body; // success: true (honorée), false (rejetée/expirée), isVIP: true si commande VIP
     if (!userId || typeof success !== 'boolean') {
       return res.status(400).json({ error: 'userId and success(boolean) required' });
     }
@@ -88,10 +89,14 @@ router.post('/order-feedback', async (req, res) => {
     } else {
       user.satisfaction -= 10;
       avis = 'negatif';
+      // Perdre une étoile si commande VIP échouée
+      if (isVIP) {
+        user.stars = Math.max(0, user.stars - 1);
+      }
     }
     user.satisfaction = Math.max(0, user.satisfaction); // Empêche satisfaction négative
     await user.save();
-    res.json({ success: true, satisfaction: user.satisfaction, avis });
+    res.json({ success: true, satisfaction: user.satisfaction, stars: user.stars, avis });
   } catch (err) {
     console.error('Order feedback error:', err);
     res.status(500).json({ error: err.message });
@@ -148,16 +153,22 @@ router.post('/discover', async (req, res) => {
     
     console.log('Recipe found:', found ? found.key : 'NONE');
     
-    // Consume ingredients either way
+    // Consume ingredients FIFO (oldest first)
     if (user && userIngredients.length > 0) {
-      for (const key of userIngredients) {
+      // Sort ingredients by createdAt (FIFO) - oldest first
+      const ingredientsByCreation = userIngredients.map(key => {
         const inv = user.inventory.find(i => i.key === key);
+        return { key, inv, createdAt: inv?.createdAt || new Date(0) };
+      }).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      
+      for (const { key, inv } of ingredientsByCreation) {
         if (inv) {
           inv.count -= 1;
           if (inv.count === 0) {
             user.inventory = user.inventory.filter(i => i.key !== key);
           }
         }
+      }
       }
       await user.save();
       console.log('Ingredients consumed, inventory updated');

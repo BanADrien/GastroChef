@@ -1,0 +1,16 @@
+{
+  "name": "gastrochef",
+  "version": "1.0.0",
+  "description": "GastroChef - The Lost Menu",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm.cmd start",
+    "client": "cd client && npm.cmd run dev",
+    "seed": "cd server && node seed.js",
+    "setup": "npm run seed && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

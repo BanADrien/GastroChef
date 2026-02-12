@@ -26,9 +26,9 @@ async function main(){
   await Ingredient.insertMany(ingredients);
 
   const recipes = [
-    { key: 'salade-composee', name: 'Salade Composée', image: 'salade.png', pattern: ['salade','tomate','fromage','oeuf',null,null], price: 8 },
-    { key: 'pates-bolo', name: 'Pâtes Bolognaise', image: 'pates.png', pattern: ['pates','boeuf','tomate',null,null,null], price: 12 },
-    { key: 'sandwich-club', name: 'Sandwich Club', image: 'sandwich.png', pattern: ['pain','poulet','fromage',null,null,null], price: 10 },
+    { key: 'salade', name: 'Salade Composée', image: 'salade.png', pattern: ['salade','tomate','fromage','oeuf',null,null], price: 8 },
+    { key: 'pates', name: 'Pâtes Bolognaise', image: 'pates.png', pattern: ['pates','boeuf','tomate',null,null,null], price: 12 },
+    { key: 'sandwich', name: 'Sandwich Club', image: 'sandwich.png', pattern: ['pain','poulet','fromage',null,null,null], price: 10 },
     { key: 'gratin-patates', name: 'Gratin Patates', image: 'gratin.png', pattern: ['patate','fromage',null,null,null,null], price: 9 },
     { key: 'chilli', name: 'Chilli', image: 'chilli.png', pattern: ['tomate','boeuf','riz',null,null,null], price: 13 }
   ];

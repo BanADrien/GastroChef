@@ -39,8 +39,9 @@ export default function CraftGrid({ pattern, onChange, inventory = [], ingredien
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(3,90px)',
-      gap: 8,
+      gridTemplateColumns: 'repeat(3,75px)',
+      columnGap: 8,
+      rowGap: 4,
       position: 'relative',
       background: 'none',
       borderRadius: 16,
@@ -57,8 +58,8 @@ export default function CraftGrid({ pattern, onChange, inventory = [], ingredien
             onDragOver={handleDragOver}
             onDrop={e => handleDrop(e, i)}
             style={{
-              width: 90,
-              height: 90,
+              width: 75,
+              height: 75,
               border: '1.5px solid #b0b0b0',
               display: 'flex',
               alignItems: 'center',
@@ -72,7 +73,7 @@ export default function CraftGrid({ pattern, onChange, inventory = [], ingredien
           >
             {key ? (
               <div style={{ textAlign: 'center', width: '100%' }}>
-                <SmartImg srcs={[`/images/ingredients/${key}.png`]} alt={ing?.name || key} style={{ width: 44, height: 44, objectFit: 'contain', display: 'block', margin: '0 auto 4px' }} />
+                <SmartImg srcs={[`/images/ingredients/${key}.png`]} alt={ing?.name || key} style={{ width: 36, height: 36, objectFit: 'contain', display: 'block', margin: '0 auto 4px' }} />
                 <div style={{ fontSize: 11 }}>{ing?.name || key}</div>
                 <div style={{ fontSize: 9, color: '#666' }}>({getInventoryCount(key)})</div>
               </div>

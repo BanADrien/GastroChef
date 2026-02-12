@@ -31,8 +31,10 @@ export default function MainMenu() {
   const [hasSave, setHasSave] = useState(false);
 
   useEffect(() => {
-    // Vérifie s'il y a une partie sauvegardée (ex: userId/localStorage)
-    setHasSave(!!localStorage.getItem('userId'));
+    // Vérifie s'il y a une partie en cours (userId existe et partie non terminée)
+    const hasUserId = !!localStorage.getItem('userId');
+    const gameEnded = localStorage.getItem('gameEnded') === 'true';
+    setHasSave(hasUserId && !gameEnded);
   }, []);
 
   function handleContinue() {
@@ -41,6 +43,8 @@ export default function MainMenu() {
 
   async function handleNewGame(levelIdx) {
     localStorage.setItem('difficulty', JSON.stringify(LEVELS[levelIdx].settings));
+    localStorage.removeItem('gameEnded');
+    localStorage.removeItem('savedDishes');
     const userId = localStorage.getItem('userId');
     if (userId) {
       try {

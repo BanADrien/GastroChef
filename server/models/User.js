@@ -6,7 +6,12 @@ const UserSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   coins: { type: Number, default: 1000 },
   satisfaction: { type: Number, default: 20 },
-  inventory: [{key: String, count: {type: Number, default: 1}}],
+  stars: { type: Number, default: 3 },
+  inventory: [{
+    key: String, 
+    count: { type: Number, default: 1 },
+    createdAt: { type: Date, default: Date.now }
+  }],
   recipes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Recipe' }]
 }, { timestamps: true });
 

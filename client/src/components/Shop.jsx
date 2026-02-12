@@ -60,20 +60,21 @@ export default function Shop({ isOpen, onClose, onBuy }){
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}}>
           {ingredients.map(ing=> {
-            const qty = 10;
-            const totalPrice = ing.price * qty;
             return (
               <div key={ing.key} style={{border:'1px solid #ddd',padding:12,borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',gap:8}}>
                 <SmartImg srcs={[`/images/ingredients/${ing.key}.png`]} alt={ing.name} style={{width:60,height:60}} />
                 <div style={{textAlign:'center'}}>
                   <div style={{fontWeight:'bold'}}>{ing.name}</div>
-                  <div style={{fontSize:12,color:'#666'}}>Prix: {totalPrice} pour {qty}</div>
+                  <div style={{fontSize:12,color:'#666'}}>Prix unitaire: {ing.price}</div>
                 </div>
-                <button onClick={()=>{
-                  handleBuy(ing, qty);
-                }} style={{width:'100%',padding:'6px 12px',background:coins >= totalPrice ? '#4CAF50' : '#ccc',color:'#fff',border:'none',borderRadius:4,cursor: coins >= totalPrice ? 'pointer' : 'not-allowed'}}>
-                  Acheter x{qty}
-                </button>
+                <div style={{display:'flex',gap:6,width:'100%'}}>
+                  <button onClick={()=> handleBuy(ing, 1)} style={{flex:1,padding:'6px 8px',background:coins >= ing.price ? '#4CAF50' : '#ccc',color:'#fff',border:'none',borderRadius:4,cursor: coins >= ing.price ? 'pointer' : 'not-allowed',fontSize:12,fontWeight:'bold'}}>
+                    +1 ({ing.price})
+                  </button>
+                  <button onClick={()=> handleBuy(ing, 5)} style={{flex:1,padding:'6px 8px',background:coins >= ing.price * 5 ? '#4CAF50' : '#ccc',color:'#fff',border:'none',borderRadius:4,cursor: coins >= ing.price * 5 ? 'pointer' : 'not-allowed',fontSize:12,fontWeight:'bold'}}>
+                    +5 ({ing.price * 5})
+                  </button>
+                </div>
               </div>
             )
           })}

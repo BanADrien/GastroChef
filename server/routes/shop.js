@@ -31,12 +31,16 @@ router.post('/buy', async (req, res) => {
     // Deduct coins
     user.coins -= totalPrice;
 
-    // Add to inventory
+    // Add to inventory with timestamp (FIFO)
     const existing = user.inventory.find(i => i.key === ingredientKey);
     if (existing) {
       existing.count += qty;
     } else {
-      user.inventory.push({ key: ingredientKey, count: qty });
+      user.inventory.push({ 
+        key: ingredientKey, 
+        count: qty,
+        createdAt: new Date()
+      });
     }
 
     await user.save();

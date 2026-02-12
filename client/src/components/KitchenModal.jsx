@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function KitchenModal({ open, onClose }) {
+export default function KitchenModal({ open, onClose, children }) {
   if (!open) return null
   return (
     <div style={{
@@ -19,7 +19,7 @@ export default function KitchenModal({ open, onClose }) {
         background: '#fff',
         borderRadius: 18,
         boxShadow: '0 8px 32px #b2e7b2',
-        maxWidth: 700,
+        maxWidth: 900,
         width: '90vw',
         maxHeight: '90vh',
         overflowY: 'auto',
@@ -27,8 +27,7 @@ export default function KitchenModal({ open, onClose }) {
         position: 'relative',
       }}>
         <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 16, fontSize: 22, background: 'none', border: 'none', cursor: 'pointer', color: '#c00', fontWeight: 'bold' }}>×</button>
-        <h2 style={{textAlign:'center',marginBottom:24}}>Cuisine</h2>
-        <div style={{textAlign:'center',color:'#666'}}>Interface cuisine à compléter...</div>
+        {children}
       </div>
     </div>
   )

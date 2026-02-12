@@ -43,13 +43,29 @@ export default function OrderPanel({ orders = [], onSendDish, dishes }) {
               <div
                 key={order.id}
                 style={{
-                  background: '#fff',
-                  border: '2px solid #FFD700',
+                  background: order.isVIP ? 'rgba(255, 215, 0, 0.1)' : '#fff',
+                  border: order.isVIP ? '3px solid #FFD700' : '2px solid #FFD700',
                   borderRadius: 12,
                   padding: 12,
-                  boxShadow: '0 2px 8px rgba(255, 215, 0, 0.3)'
+                  boxShadow: order.isVIP ? '0 4px 16px rgba(255, 215, 0, 0.5)' : '0 2px 8px rgba(255, 215, 0, 0.3)',
+                  position: 'relative'
                 }}
               >
+                {order.isVIP && (
+                  <div style={{
+                    position: 'absolute',
+                    top: -8,
+                    right: 8,
+                    background: '#FFD700',
+                    color: '#000',
+                    padding: '2px 8px',
+                    borderRadius: 20,
+                    fontSize: 11,
+                    fontWeight: 'bold'
+                  }}>
+                    VIP !
+                  </div>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                   <SmartImg
                     srcs={[
@@ -63,6 +79,7 @@ export default function OrderPanel({ orders = [], onSendDish, dishes }) {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 'bold', fontSize: 14 }}>
                       {order.recipe?.name || 'Plat inconnu'}
+                      {order.isVIP && ' (VIP)'}
                     </div>
                     <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>
                       💰 Récompense: {order.reward} pièces

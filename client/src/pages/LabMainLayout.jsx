@@ -12,6 +12,18 @@ export default function LabMainLayout({ children }) {
         background: 'url(/images/decors/fond.png) center/cover no-repeat, #fff',
       }}
     >
+      {/* Recettes découvertes à gauche de la planche */}
+      {children.left && (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '2vw',
+          transform: 'translateY(-50%)',
+          zIndex: 800,
+        }}>
+          {children.left}
+        </div>
+      )}
       {/* Planche (grille) à gauche */}
       <div style={{
         position: 'absolute',
@@ -41,21 +53,9 @@ export default function LabMainLayout({ children }) {
         boxShadow: 'none',
         border: 'none',
         padding: 0,
+        margin: 0,
       }}>
-        {children.right && children.right[0] && (
-          <div style={{
-            width: '100%',
-            background: '#fff',
-            borderRadius: 18,
-            boxShadow: '0 2px 8px #0001',
-            padding: 20,
-            margin: 0,
-            marginBottom: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-          }}>{children.right[0]}</div>
-        )}
+        {children.right && children.right[0]}
       </div>
       {/* Inventaire à droite */}
       {children.right && children.right[1] && (
@@ -73,19 +73,9 @@ export default function LabMainLayout({ children }) {
           boxShadow: 'none',
           border: 'none',
           padding: 0,
+          margin: 0,
         }}>
-          <div style={{
-            width: '100%',
-            background: '#fff',
-            borderRadius: 18,
-            boxShadow: '0 2px 8px #0001',
-            padding: 20,
-            margin: 0,
-            marginBottom: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-          }}>{children.right[1]}</div>
+          {children.right[1]}
         </div>
       )}
     </div>
