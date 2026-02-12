@@ -42,9 +42,8 @@ export default function CraftGrid({ pattern, onChange, inventory = [], ingredien
       gridTemplateColumns: 'repeat(3,90px)',
       gap: 8,
       position: 'relative',
-      background: '#f5f7fa',
+      background: 'none',
       borderRadius: 16,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
       padding: 16,
       minWidth: 300,
       minHeight: 200
@@ -65,49 +64,19 @@ export default function CraftGrid({ pattern, onChange, inventory = [], ingredien
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
-              background: key ? '#eef7ee' : '#fff',
+              background: '#a97c50',
               borderRadius: 10,
-              boxShadow: key ? '0 1px 4px #cde8c9' : 'none',
+              boxShadow: 'none',
               overflow: 'visible'
             }}
           >
             {key ? (
-              <>
-                {/* Small clear cross at top left */}
-                <button
-                  onClick={() => handleClear(i)}
-                  aria-label="Retirer l'ingrédient"
-                  style={{
-                    position: 'absolute',
-                    top: 2,
-                    left: 2,
-                    width: 18,
-                    height: 18,
-                    border: 'none',
-                    background: 'rgba(255,255,255,0.85)',
-                    borderRadius: '50%',
-                    color: '#c00',
-                    fontWeight: 'bold',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    lineHeight: '16px',
-                    padding: 0,
-                    zIndex: 2,
-                    boxShadow: '0 1px 2px #eee'
-                  }}
-                  tabIndex={0}
-                >
-                  ×
-                </button>
-                <div style={{ textAlign: 'center', width: '100%' }}>
-                  <SmartImg srcs={[`/images/ingredients/${key}.png`]} alt={ing?.name || key} style={{ width: 44, height: 44, objectFit: 'contain', display: 'block', margin: '0 auto 4px' }} />
-                  <div style={{ fontSize: 11 }}>{ing?.name || key}</div>
-                  <div style={{ fontSize: 9, color: '#666' }}>({getInventoryCount(key)})</div>
-                </div>
-              </>
-            ) : (
-              <div style={{ color: '#bbb', fontSize: 13, fontStyle: 'italic' }}>Drop</div>
-            )}
+              <div style={{ textAlign: 'center', width: '100%' }}>
+                <SmartImg srcs={[`/images/ingredients/${key}.png`]} alt={ing?.name || key} style={{ width: 44, height: 44, objectFit: 'contain', display: 'block', margin: '0 auto 4px' }} />
+                <div style={{ fontSize: 11 }}>{ing?.name || key}</div>
+                <div style={{ fontSize: 9, color: '#666' }}>({getInventoryCount(key)})</div>
+              </div>
+            ) : null}
           </div>
         )
       })}

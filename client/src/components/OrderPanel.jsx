@@ -1,7 +1,14 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import SmartImg from './SmartImg'
 
 export default function OrderPanel({ orders = [], onSendDish, dishes }) {
+  // Pour forcer le rafraîchissement du timer
+  const [, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(t);
+  }, []);
+
   return (
     <div style={{
       background: 'rgba(255,255,255,0.95)',
@@ -25,7 +32,13 @@ export default function OrderPanel({ orders = [], onSendDish, dishes }) {
             const dishIndex = dishes.findIndex((dish) => 
               dish && dish.key === order.recipeKey
             )
-            
+            // Calcul du pourcentage d'expiration
+            let percent = 100;
+            if (order.expiresAt) {
+              const total = order.expiresAt - order.id;
+              const left = Math.max(0, order.expiresAt - Date.now());
+              percent = Math.round((left / total) * 100);
+            }
             return (
               <div
                 key={order.id}
@@ -38,26 +51,15 @@ export default function OrderPanel({ orders = [], onSendDish, dishes }) {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  {order.recipe?.image ? (
-                    <SmartImg 
-                      srcs={[`/images/plats/${order.recipe.image}`]} 
-                      alt={order.recipe.name} 
-                      style={{ width: 50, height: 40, objectFit: 'contain', borderRadius: 6 }} 
-                    />
-                  ) : (
-                    <div style={{ 
-                      width: 50, 
-                      height: 40, 
-                      background: '#f0f0f0', 
-                      borderRadius: 6,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 20
-                    }}>
-                      🍽️
-                    </div>
-                  )}
+                  <SmartImg
+                    srcs={[
+                      order.recipe?.image ? `/images/plats/${order.recipe.image}` : null,
+                      `/images/plats/${encodeURIComponent(order.recipe?.name || '')}.png`,
+                      `/images/plats/${order.recipe?.key || ''}.png`
+                    ].filter(Boolean)}
+                    alt={order.recipe?.name || 'Plat'}
+                    style={{ width: 50, height: 40, objectFit: 'contain', borderRadius: 6 }}
+                  />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 'bold', fontSize: 14 }}>
                       {order.recipe?.name || 'Plat inconnu'}
@@ -67,6 +69,25 @@ export default function OrderPanel({ orders = [], onSendDish, dishes }) {
                     </div>
                   </div>
                 </div>
+                {/* Barre d'expiration */}
+                {order.expiresAt && (
+                  <div style={{
+                    width: '100%',
+                    height: 7,
+                    background: '#eee',
+                    borderRadius: 6,
+                    marginBottom: 8,
+                    overflow: 'hidden',
+                    border: '1px solid #ffd700',
+                  }}>
+                    <div style={{
+                      width: percent + '%',
+                      height: '100%',
+                      background: percent > 50 ? '#4caf50' : percent > 20 ? '#ff9800' : '#f44336',
+                      transition: 'width 0.5s',
+                    }} />
+                  </div>
+                )}
                 <button
                   onClick={() => onSendDish(order.id, dishIndex)}
                   disabled={!canSend}

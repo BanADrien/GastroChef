@@ -1,24 +1,31 @@
-﻿import React, { useEffect, useState } from "react"
+﻿
+import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import SmartImg from '../components/SmartImg'
 
-export default function RecipeBook({ modalMode }){
-  const [foundRecipes, setFoundRecipes] = useState([])
+export default function RecipeBook({ modalMode, foundRecipes: foundRecipesProp }){
   const [ingredients, setIngredients] = useState([])
   const [allRecipes, setAllRecipes] = useState([])
   const userId = localStorage.getItem('userId')
   const nav = useNavigate()
+
+  // Use foundRecipes from prop if provided, else fetch
+  const [foundRecipes, setFoundRecipes] = useState(foundRecipesProp || []);
 
   useEffect(() => {
     if (!userId && !modalMode) {
       nav('/')
       return
     }
-    axios.get('http://localhost:4000/lab/user-recipes/' + userId).then(r => setFoundRecipes(r.data)).catch(e => console.error(e))
+    if (!foundRecipesProp) {
+      axios.get('http://localhost:4000/lab/user-recipes/' + userId).then(r => setFoundRecipes(r.data)).catch(e => console.error(e))
+    } else {
+      setFoundRecipes(foundRecipesProp);
+    }
     axios.get('http://localhost:4000/lab/recipes').then(r => setAllRecipes(r.data)).catch(e => console.error(e))
     axios.get('http://localhost:4000/lab/ingredients').then(r => setIngredients(r.data)).catch(e => console.error(e))
-  }, [userId, nav, modalMode])
+  }, [userId, nav, modalMode, foundRecipesProp])
 
   const findIngredient = (key) => ingredients.find(i => i.key === key)
   const isFound = (recipe) => foundRecipes.some(r => r._id === recipe._id)

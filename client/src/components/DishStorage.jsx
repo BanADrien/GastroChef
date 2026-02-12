@@ -64,7 +64,6 @@ export default function DishStorage({ dishes = [], onDrop, onRemove }) {
                     <div style={{ width: `${percent * 100}%`, height: 8, background: percent > 0.3 ? '#4CAF50' : percent > 0 ? '#FF9800' : '#c00', borderRadius: 4, transition: 'width 0.5s' }} />
                   </div>
                   {isBurnt && <div style={{ color: '#c00', fontSize: 11, marginTop: 2 }}>Cramé !</div>}
-                  <button onClick={() => onRemove && onRemove(idx)} style={{ position: 'absolute', top: 2, right: 2, background: 'none', border: 'none', color: '#c00', fontWeight: 'bold', fontSize: 16, cursor: 'pointer' }}>×</button>
                 </>
               ) : (
                 <div style={{ color: '#bbb', fontSize: 13, fontStyle: 'italic' }}>Vide</div>

@@ -8,7 +8,7 @@ router.post('/register', async (req, res) => {
   const { restaurantName, email, password } = req.body;
   const hash = await bcrypt.hash(password, 10);
   try {
-    const user = await User.create({ restaurantName, email, passwordHash: hash, coins: 1000 });
+    const user = await User.create({ restaurantName, email, passwordHash: hash, coins: 1000, satisfaction: 20 });
     res.json({ ok: true });
   } catch (err) { res.status(400).json({ error: err.message }); }
 });

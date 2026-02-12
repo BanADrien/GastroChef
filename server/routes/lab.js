@@ -1,8 +1,103 @@
+
 const express = require('express');
 const Recipe = require('../models/Recipe');
 const Ingredient = require('../models/Ingredient');
 const User = require('../models/User');
 const router = express.Router();
+
+// Reset discovered recipes for user
+router.post('/reset-recipes', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: 'userId required' });
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'user not found' });
+    user.recipes = [];
+    await user.save();
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Reset recipes error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Reset satisfaction to 20 for user
+router.post('/reset-satisfaction', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: 'userId required' });
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'user not found' });
+    user.satisfaction = 20;
+    await user.save();
+    res.json({ success: true, satisfaction: user.satisfaction });
+  } catch (err) {
+    console.error('Reset satisfaction error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
+
+// Clear user inventory
+router.post('/clear-inventory', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: 'userId required' });
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'user not found' });
+    user.inventory = [];
+    await user.save();
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Clear inventory error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Remove ingredient from user inventory permanently
+router.post('/remove-ingredient', async (req, res) => {
+  try {
+    const { userId, key } = req.body;
+    if (!userId || !key) return res.status(400).json({ error: 'userId and key required' });
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'user not found' });
+    user.inventory = user.inventory.filter(i => i.key !== key);
+    await user.save();
+    res.json({ success: true, inventory: user.inventory });
+  } catch (err) {
+    console.error('Remove ingredient error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Met à jour la satisfaction du joueur (commande honorée ou rejetée)
+router.post('/order-feedback', async (req, res) => {
+  try {
+    const { userId, success } = req.body; // success: true (honorée), false (rejetée/expirée)
+    if (!userId || typeof success !== 'boolean') {
+      return res.status(400).json({ error: 'userId and success(boolean) required' });
+    }
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'user not found' });
+    let avis = 'positif';
+    if (success) {
+      user.satisfaction += 1;
+    } else {
+      user.satisfaction -= 10;
+      avis = 'negatif';
+    }
+    user.satisfaction = Math.max(0, user.satisfaction); // Empêche satisfaction négative
+    await user.save();
+    res.json({ success: true, satisfaction: user.satisfaction, avis });
+  } catch (err) {
+    console.error('Order feedback error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Check a 3x2 pattern: array of 6 ingredient keys
 router.post('/discover', async (req, res) => {
@@ -42,8 +137,9 @@ router.post('/discover', async (req, res) => {
     
     const userIngredientsSet = userIngredients.sort();
     console.log('User ingredients sorted:', userIngredientsSet);
-    
+
     const found = recipes.find(r => {
+      if (!Array.isArray(r.pattern) || r.pattern.length !== 6) return false;
       const recipeIngredients = r.pattern.filter(ing => ing !== null && ing !== undefined).sort();
       const matches = JSON.stringify(userIngredientsSet) === JSON.stringify(recipeIngredients);
       console.log(`Recipe ${r.key}: pattern=${r.pattern}, extracted=${recipeIngredients}, matches=${matches}`);
@@ -107,7 +203,7 @@ router.get('/inventory/:userId', async (req, res) => {
   try {
     const user = await User.findById(req.params.userId);
     if (!user) return res.status(404).json({ error: 'user not found' });
-    res.json({ inventory: user.inventory, coins: user.coins });
+    res.json({ inventory: user.inventory, coins: user.coins, satisfaction: user.satisfaction });
   } catch (err) {
     console.error('Inventory error:', err);
     res.status(500).json({ error: err.message });

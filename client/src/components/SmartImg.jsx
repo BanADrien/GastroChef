@@ -44,7 +44,7 @@ export default function SmartImg({ srcs = [], alt = '', style = {}, className })
         borderRadius:4,
         border: error ? '1px solid #ddd' : 'none',
         color:'#bbb',
-        fontSize: Math.max(8, (style.width || 40) / 4),
+        fontSize: isNaN(Math.max(8, (style.width || 40) / 4)) ? 12 : Math.max(8, (style.width || 40) / 4),
         textAlign:'center',
         padding:2,
         minWidth: style.width||40,
