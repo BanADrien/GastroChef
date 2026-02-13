@@ -431,10 +431,8 @@ export default function Lab() {
           ]
         }}
       />
-      {/* Overlays et barres fixes */}
       <GameTimer gameTimeLeft={gameTimeLeft} />
       <SatisfactionBar satisfaction={satisfaction} />
-      {/* Affichage des étoiles */}
       <div style={{
         position: 'fixed',
         top: 20,

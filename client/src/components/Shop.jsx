@@ -8,7 +8,7 @@ export default function Shop({ isOpen, onClose, onBuy }){
 
   useEffect(()=>{
     if (!isOpen) return
-    // Fetch available ingredients and user coins
+    // Récupère les ingrédients disponibles et les pièces de l'utilisateur
     Promise.all([
       fetch('http://localhost:4000/lab/ingredients')
         .then(r=>r.json())

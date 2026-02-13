@@ -29,12 +29,20 @@ export default function MainMenu() {
   const nav = useNavigate();
   const [showLevelSelect, setShowLevelSelect] = useState(false);
   const [hasSave, setHasSave] = useState(false);
+  const [welcome, setWelcome] = useState('');
 
   useEffect(() => {
     // Vérifie s'il y a une partie en cours (userId existe et partie non terminée)
     const hasUserId = !!localStorage.getItem('userId');
     const gameEnded = localStorage.getItem('gameEnded') === 'true';
     setHasSave(hasUserId && !gameEnded);
+    // Affiche le message de bienvenue si connecté
+    const restaurantName = localStorage.getItem('restaurantName');
+    if (restaurantName) {
+      setWelcome(`Bonjour chef du ${restaurantName}`);
+    } else {
+      setWelcome('');
+    }
   }, []);
 
   function handleContinue() {
@@ -46,6 +54,9 @@ export default function MainMenu() {
     localStorage.removeItem('gameEnded');
     localStorage.removeItem('savedDishes');
     const userId = localStorage.getItem('userId');
+    // Définir le nombre de pièces de départ selon le niveau
+    const coinsByLevel = [15, 13, 10, 8, 5];
+    const startCoins = coinsByLevel[levelIdx] || 10;
     if (userId) {
       try {
         await fetch('http://localhost:4000/lab/reset-satisfaction', {
@@ -63,6 +74,12 @@ export default function MainMenu() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId })
         });
+        // Mettre à jour les pièces de départ
+        await fetch('http://localhost:4000/lab/update-coins', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, coins: startCoins })
+        });
       } catch (e) { /* ignore erreur pour éviter blocage */ }
     }
     nav('/lab');
@@ -70,6 +87,23 @@ export default function MainMenu() {
 
   return (
     <div className="main-menu-bg">
+      {welcome && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          margin: '0 auto',
+          textAlign: 'center',
+          fontSize: '1.5rem',
+          fontWeight: 600,
+          color: '#4CAF50',
+          background: 'rgba(255,255,255,0.85)',
+          borderRadius: '0 0 18px 18px',
+          padding: '18px 0',
+          zIndex: 1000
+        }}>{welcome}</div>
+      )}
       <div className="main-menu-panel">
         <h1>GastroChef</h1>
         <button onClick={() => nav('/login')}>Login</button>

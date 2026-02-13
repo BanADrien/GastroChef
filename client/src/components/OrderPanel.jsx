@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import SmartImg from './SmartImg'
 
-export default function OrderPanel({ orders = [], onSendDish, dishes }) {
-  // Pour forcer le rafraîchissement du timer
+  // Permet de forcer le rafraîchissement du timer
   const [, setNow] = useState(Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 500);

@@ -1,7 +1,7 @@
 import React from 'react'
 import SmartImg from './SmartImg'
 
-// props: onDrop, onClick
+// props : onDrop, onClick
 export default function TrashBin({ onDrop, onClick, decorMode }) {
   const handleDragOver = e => {
     e.preventDefault()

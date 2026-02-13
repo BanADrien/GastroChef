@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-// SmartImg tries multiple srcs in order and uses the first that loads successfully.
+// SmartImg teste plusieurs sources d'image dans l'ordre et utilise la première qui se charge correctement.
 export default function SmartImg({ srcs = [], alt = '', style = {}, className }){
   const [loaded, setLoaded] = useState(null)
   const [error, setError] = useState(false)
