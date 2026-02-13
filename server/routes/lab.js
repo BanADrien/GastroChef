@@ -4,7 +4,7 @@ const Ingredient = require('../models/Ingredient');
 const User = require('../models/User');
 const router = express.Router();
 
-// Reset discovered recipes for user
+// Réinitialise les recettes découvertes pour l'utilisateur
 router.post('/reset-recipes', async (req, res) => {
   try {
     const { userId } = req.body;
@@ -20,7 +20,7 @@ router.post('/reset-recipes', async (req, res) => {
   }
 });
 
-// Reset satisfaction to 20 for user
+// Réinitialise la satisfaction à 20 pour l'utilisateur
 router.post('/reset-satisfaction', async (req, res) => {
   try {
     const { userId } = req.body;
@@ -28,7 +28,7 @@ router.post('/reset-satisfaction', async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: 'user not found' });
     user.satisfaction = 20;
-    user.stars = 3; // Reset stars to 3
+    user.stars = 3; // Réinitialise les étoiles à 3
     await user.save();
     res.json({ success: true, satisfaction: user.satisfaction, stars: user.stars });
   } catch (err) {
@@ -37,7 +37,7 @@ router.post('/reset-satisfaction', async (req, res) => {
   }
 });
 
-// Clear user inventory
+// Vide l'inventaire de l'utilisateur
 router.post('/clear-inventory', async (req, res) => {
   try {
     const { userId } = req.body;
@@ -53,7 +53,7 @@ router.post('/clear-inventory', async (req, res) => {
   }
 });
 
-// Remove ingredient from user inventory permanently
+// Retire définitivement un ingrédient de l'inventaire de l'utilisateur
 router.post('/remove-ingredient', async (req, res) => {
   try {
     const { userId, key } = req.body;

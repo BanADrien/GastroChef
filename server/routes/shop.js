@@ -3,7 +3,7 @@ const User = require('../models/User');
 const Ingredient = require('../models/Ingredient');
 const router = express.Router();
 
-// Get user coins and inventory
+// Récupère les pièces et l'inventaire de l'utilisateur
 router.get('/status', async (req, res) => {
   const userId = req.query.userId; // simplified: should be from auth token
   if (!userId) return res.status(400).json({ error: 'userId required' });
@@ -12,7 +12,7 @@ router.get('/status', async (req, res) => {
   res.json({ coins: user.coins, inventory: user.inventory });
 });
 
-// Buy an ingredient
+// Achète un ingrédient
 router.post('/buy', async (req, res) => {
   try {
     const { userId, ingredientKey, quantity } = req.body;
@@ -28,10 +28,10 @@ router.post('/buy', async (req, res) => {
     const totalPrice = ingredient.price * qty;
     if (user.coins < totalPrice) return res.status(400).json({ error: 'not enough coins' });
 
-    // Deduct coins
+    // Retire les pièces
     user.coins -= totalPrice;
 
-    // Add to inventory with timestamp (FIFO)
+    // Ajoute à l'inventaire avec un timestamp (FIFO)
     const existing = user.inventory.find(i => i.key === ingredientKey);
     if (existing) {
       existing.count += qty;
@@ -51,7 +51,7 @@ router.post('/buy', async (req, res) => {
   }
 });
 
-// Use ingredient from inventory (subtract from inventory, add to craft)
+// Utilise un ingrédient de l'inventaire (soustrait de l'inventaire, ajoute au craft)
 router.post('/use', async (req, res) => {
   const { userId, ingredientKey } = req.body;
   const user = await User.findById(userId);

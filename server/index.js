@@ -12,33 +12,35 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
 
-// simple route
+
+// Route simple pour tester l'API
 app.get('/', (req, res) => res.send('GastroChef API'));
 
-// connect mongo
+// Connexion à MongoDB
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/gastrochef', {useNewUrlParser:true,useUnifiedTopology:true})
-  .then(()=>console.log('Mongo connected'))
+  .then(()=>console.log('Mongo connecté'))
   .catch(err=>console.error(err));
 
-// routes (will create basic modules)
+// Importation des routes principales
 app.use('/auth', require('./routes/auth'));
 app.use('/lab', require('./routes/lab'));
 app.use('/market', require('./routes/marketplace'));
 app.use('/shop', require('./routes/shop'));
 
-// Global error handler
+// Gestionnaire d'erreurs global
 app.use((err, req, res, next) => {
-  console.error('Global error:', err);
-  res.status(500).json({ error: err.message || 'Internal server error' });
+  console.error('Erreur globale :', err);
+  res.status(500).json({ error: err.message || 'Erreur interne du serveur' });
 });
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
-// simple order generation for connected clients
+
+// Génération simple de commandes pour les clients connectés
 io.on('connection', (socket) => {
-  console.log('socket connected', socket.id);
-  // send a test order every 15 seconds (in prod make it configurable)
+  console.log('Socket connecté', socket.id);
+  // Envoie une commande de test toutes les 15 secondes (en production, rendre configurable)
   const sendOrder = () => {
     const order = {
       id: Date.now(),

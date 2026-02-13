@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
 
+
+// Inscription d'un nouvel utilisateur
 router.post('/register', async (req, res) => {
   const { restaurantName, email, password } = req.body;
   const hash = await bcrypt.hash(password, 10);
@@ -13,6 +15,8 @@ router.post('/register', async (req, res) => {
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
+
+// Connexion d'un utilisateur existant
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -23,7 +27,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
     res.json({ token, userId: user._id.toString() });
   } catch (err) {
-    console.error('Login error:', err);
+    console.error('Erreur de connexion :', err);
     res.status(500).json({ error: err.message });
   }
 });
