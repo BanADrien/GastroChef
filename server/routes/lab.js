@@ -1,4 +1,3 @@
-
 const express = require('express');
 const Recipe = require('../models/Recipe');
 const Ingredient = require('../models/Ingredient');
@@ -37,10 +36,6 @@ router.post('/reset-satisfaction', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-
-
-
 
 // Clear user inventory
 router.post('/clear-inventory', async (req, res) => {
@@ -103,7 +98,6 @@ router.post('/order-feedback', async (req, res) => {
   }
 });
 
-
 // Check a 3x2 pattern: array of 6 ingredient keys
 router.post('/discover', async (req, res) => {
   try {
@@ -112,37 +106,22 @@ router.post('/discover', async (req, res) => {
     console.log('Pattern received:', pattern);
     console.log('UserId:', userId);
     
-    if (!Array.isArray(pattern) || pattern.length !== 6) return res.status(400).json({ error: 'pattern must be array of 6' });
+    if (!Array.isArray(pattern) || pattern.length !== 6) {
+      return res.status(400).json({ error: 'pattern must be array of 6' });
+    }
     
     const user = userId ? await User.findById(userId) : null;
     console.log('User found:', user ? user._id : 'NO USER');
-    if (user) {
-      console.log('User inventory:', user.inventory);
-    }
     
-    // Extract non-null ingredients from the user's pattern
+    // Filter out null/undefined ingredients
     const userIngredients = pattern.filter(ing => ing !== null && ing !== undefined);
-    console.log('Extracted ingredients from pattern:', userIngredients);
-    
-    // Verify user has all required ingredients in inventory
-    if (user && userIngredients.length > 0) {
-      for (const key of userIngredients) {
-        const inv = user.inventory.find(i => i.key === key);
-        console.log(`Checking ingredient ${key}:`, inv ? `found (count: ${inv.count})` : 'NOT FOUND');
-        if (!inv || inv.count < 1) {
-          console.log(`Missing ingredient: ${key}`);
-          return res.status(400).json({ success: false, error: `Missing ingredient: ${key}` });
-        }
-      }
-    }
+    const userIngredientsSet = userIngredients.sort();
+    console.log('User ingredients sorted:', userIngredientsSet);
     
     // Find recipe with matching ingredient set (order-insensitive)
     const recipes = await Recipe.find();
     console.log('Total recipes in DB:', recipes.length);
     
-    const userIngredientsSet = userIngredients.sort();
-    console.log('User ingredients sorted:', userIngredientsSet);
-
     const found = recipes.find(r => {
       if (!Array.isArray(r.pattern) || r.pattern.length !== 6) return false;
       const recipeIngredients = r.pattern.filter(ing => ing !== null && ing !== undefined).sort();
@@ -169,7 +148,6 @@ router.post('/discover', async (req, res) => {
           }
         }
       }
-      }
       await user.save();
       console.log('Ingredients consumed, inventory updated');
     }
@@ -183,6 +161,7 @@ router.post('/discover', async (req, res) => {
       }
       return res.json({ success: true, recipe: found, inventory: user?.inventory || [] });
     }
+    
     // on fail, ingredients already destroyed
     console.log('=== NO MATCH ===');
     return res.json({ success: false, inventory: user?.inventory || [] });
